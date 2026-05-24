@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FORTUNA — Simulação Educacional de Apostas</title>
+  <link rel="icon" type="image/png" href="img/favicon.png" />
   <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;600;700&family=Bebas+Neue&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -50,23 +51,48 @@
 
 <div class="overlay" id="gameOverOverlay" role="dialog" aria-modal="true">
   <div class="modal modal-gameover">
-    <div style="font-size:2.8rem;margin-bottom:0.8rem;text-align:center;">⚠️</div>
-    <h2 style="text-align:center;color:#FF6B6B;font-size:1.6rem;margin-bottom:1rem;">AVISO IMPORTANTE</h2>
-    
-    <div class="gameover-content">
-      <p><strong>Esta aplicação é uma simulação educacional.</strong> Jogos de azar e plataformas de apostas não regulamentadas são <span style="color:#FFD93D;">matematicamente e algoritmicamente programados para fazer você perder.</span></p>
-      
-      <p style="margin-top:1rem;">Mecânicas como <span style="color:#FF6B6B;">falsos ganhos</span> (ganhar menos do que você apostou), <span style="color:#FF6B6B;">quase-acertos</span> (near-miss) e <span style="color:#FF6B6B;">restrições abusivas de saque</span> são técnicas de <em>design persuasivo</em> criadas para prender sua atenção, criar vício e esvaziar sua banca progressivamente.</p>
-      
-      <p style="margin-top:1.5rem;font-size:1.1rem;color:#FFD93D;"><strong>A CASA SEMPRE GANHA.</strong></p>
-      
-      <div style="margin-top:1.5rem;padding:1rem;background:rgba(255,107,107,0.1);border-left:4px solid #FF6B6B;border-radius:4px;font-size:0.85rem;">
-        <p style="margin:0;"><strong>Se você ou alguém que conhece tem problemas com apostas, procure ajuda:</strong></p>
-        <p style="margin:0.5rem 0 0 0;"><strong>CVV: 188 · SENAD: 0800 061 9960</strong></p>
-      </div>
+
+    <div class="go-icon">⚠️</div>
+    <h2 class="go-title">AVISO IMPORTANTE</h2>
+
+    <div class="go-box">
+      <p>Esta aplicação é uma <strong class="go-highlight-red">simulação educacional</strong>. Jogos de azar e plataformas de apostas não regulamentadas são <strong class="go-highlight-gold">matematicamente e algoritmicamente programados para fazer você perder</strong>.</p>
+      <p>Mecânicas como <strong class="go-highlight-red">falsos ganhos</strong> (ganhar menos do que você apostou), <strong class="go-highlight-red">quase-acertos</strong> (near-miss) e <strong class="go-highlight-red">restrições abusivas de saque</strong> são técnicas de <strong class="go-highlight-gold">design persuasivo</strong> criadas para prender sua atenção, criar vício e esvaziar sua banca progressivamente.</p>
+      <p class="go-house">A casa sempre ganha.</p>
     </div>
-    
-    <button class="modal-close-btn btn-gold" id="closeGameOverBtn" style="margin-top:1.5rem;width:100%;">ENTENDI</button>
+
+    <div class="pill-row">
+      <span class="pill red">Near-Miss Programado</span>
+      <span class="pill amber">Ganhos Iniciais Falsos</span>
+      <span class="pill purple">Saque Bloqueado</span>
+      <span class="pill red">Perda Total no Gatilho</span>
+    </div>
+
+    <p class="go-help">Se você ou alguém que conhece tem problemas com apostas, procure ajuda.<br>
+      <strong class="go-hotline">CVV: 188 · SENAD: 0800 061 9960</strong>
+    </p>
+
+    <button class="go-restart-btn" id="closeGameOverBtn">↩ REINICIAR SIMULAÇÃO</button>
+
+  </div>
+</div>
+
+<div class="overlay" id="depositOverlay" role="dialog" aria-modal="true">
+  <div class="modal modal-deposit">
+    <div style="font-size:2rem;margin-bottom:0.5rem;text-align:center;">💰</div>
+    <h2 style="text-align:center;margin-bottom:1.2rem;">DEPOSITAR SALDO</h2>
+    <div class="deposit-amounts">
+      <button class="dep-quick-btn" data-val="50">R$ 50</button>
+      <button class="dep-quick-btn" data-val="100">R$ 100</button>
+      <button class="dep-quick-btn" data-val="200">R$ 200</button>
+      <button class="dep-quick-btn" data-val="500">R$ 500</button>
+    </div>
+    <div class="dep-custom-row">
+      <span class="dep-prefix">R$</span>
+      <input id="depositInput" type="number" min="1" step="1" placeholder="Outro valor..." />
+    </div>
+    <button class="modal-close-btn btn-gold" id="confirmDepositBtn" style="margin-top:1.2rem;width:100%;">CONFIRMAR DEPÓSITO</button>
+    <button class="dep-cancel-btn" id="cancelDepositBtn">Cancelar</button>
   </div>
 </div>
 
@@ -84,6 +110,9 @@
       <button class="withdraw-btn" id="withdrawBtn" style="margin-top:0.6rem;">
         ↑ SOLICITAR SAQUE
       </button>
+      <div class="deposit-row" style="margin-top:0.5rem;">
+        <button class="deposit-btn" id="depositBtn">↓ DEPOSITAR</button>
+      </div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Último Ganho</div>
@@ -128,49 +157,10 @@
       <button class="spin-btn" id="spinBtn"><span>🎰 &nbsp;GIRAR</span></button>
 
       <button class="restart-btn" id="restartBtn" style="display:none;">↩ REINICIAR SIMULAÇÃO</button>
-
-      <div class="play-count" id="playCountEl">Jogada 0 de 6</div>
     </div>
   </div>
 
   <div class="history-row" id="historyRow"></div>
-
-  <section class="awareness-panel" id="awarenessPanel">
-
-    <div class="aw-icon" style="text-align:center;">⚠️</div>
-    <h2 style="text-align:center;">AVISO IMPORTANTE</h2>
-
-    <div class="aw-box">
-      Esta aplicação é uma <strong>simulação educacional</strong>.
-      Jogos de azar e plataformas de apostas não regulamentadas são
-      <em>matematicamente e algoritmicamente programados para fazer você perder</em>.
-      <br /><br />
-      Mecânicas como <strong>falsos ganhos</strong> (ganhar menos do que você apostou),
-      <strong>quase-acertos</strong> (near-miss) e
-      <strong>restrições abusivas de saque</strong> são técnicas de
-      <em>design persuasivo</em> criadas para prender sua atenção,
-      criar vício e esvaziar sua banca progressivamente.
-      <br /><br />
-      <strong>A casa sempre ganha.</strong>
-    </div>
-
-    <div class="pill-row">
-      <span class="pill red">Near-Miss Programado</span>
-      <span class="pill amber">Ganhos Iniciais Falsos</span>
-      <span class="pill purple">Saque Bloqueado</span>
-      <span class="pill red">Perda Total no Gatilho</span>
-    </div>
-
-    <p style="text-align:center;font-size:0.8rem;color:#6a5e8a;margin-bottom:1.4rem;">
-      Se você ou alguém que conhece tem problemas com apostas, procure ajuda.<br/>
-      <strong style="color:var(--cyan);">CVV: 188 · SENAD: 0800 061 9960</strong>
-    </p>
-
-    <div style="text-align:center;">
-      <button class="restart-btn" id="awRestartBtn">↩ REINICIAR SIMULAÇÃO</button>
-    </div>
-
-  </section>
 
 </main>
 

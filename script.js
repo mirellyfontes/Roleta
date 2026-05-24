@@ -7,7 +7,6 @@ const CFG = {
   INIT_BALANCE:    100,
   BET_DEFAULT:     5,
   BET_MIN:         1,
-  BET_MAX:         50,
   BET_STEP:        1,
   SYM_H:           100,   // px – deve bater com --sym-h
   REEL_COUNT:      3,
@@ -80,13 +79,11 @@ const betDisplayEl = q('betDisplay');
 const statusEl     = q('statusMsg');
 const spinBtn      = q('spinBtn');
 const restartBtn   = q('restartBtn');
-const awRestartBtn = q('awRestartBtn');
-const playCountEl  = q('playCountEl');
+const playCountEl  = null; // removido
 const historyRow   = q('historyRow');
 const winOverlay   = q('winOverlay');
 const retainOverlay= q('retainOverlay');
 const gameOverOverlay = q('gameOverOverlay');
-const awarenessPanel = q('awarenessPanel');
 const withdrawBtn  = q('withdrawBtn');
 const confettiDiv  = q('confetti');
 
@@ -430,7 +427,7 @@ function setStatus(msg, type = 'info') {
 }
 
 function updatePlayCounter() {
-  playCountEl.textContent = `Jogada ${G.playCount} de ${CFG.BUST_AT}`;
+  // contador removido
 }
 
 function updateHistoryPanel() {
@@ -486,16 +483,43 @@ function closeRetainModal() { retainOverlay.classList.remove('open'); }
 
 function closeGameOverModal() { 
   gameOverOverlay.classList.remove('open');
-  showAwareness();
 }
 
 /* ──────────────────────────────────────────────────
-   TELA DE CONSCIENTIZAÇÃO
+   DEPÓSITO
 ────────────────────────────────────────────────── */
-function showAwareness() {
-  awarenessPanel.classList.add('visible');
-  // Suave scroll até o painel
-  setTimeout(() => awarenessPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+let depositSelected = 0;
+
+function openDepositModal() {
+  depositSelected = 0;
+  q('depositInput').value = '';
+  document.querySelectorAll('.dep-quick-btn').forEach(b => b.classList.remove('selected'));
+  q('depositOverlay').classList.add('open');
+}
+
+function closeDepositModal() {
+  q('depositOverlay').classList.remove('open');
+}
+
+function confirmDeposit() {
+  const custom = parseFloat(q('depositInput').value);
+  const amount = custom > 0 ? custom : depositSelected;
+  if (!amount || amount <= 0) {
+    q('depositInput').style.borderColor = 'var(--red)';
+    setTimeout(() => q('depositInput').style.borderColor = '', 800);
+    return;
+  }
+  G.balance += amount;
+  G.gameOver = false;
+  spinBtn.disabled      = false;
+  withdrawBtn.disabled  = false;
+  q('betDown').disabled = false;
+  q('betUp').disabled   = false;
+  restartBtn.style.display = 'none';
+  clearReelGlows();
+  setStatus('Saldo adicionado! Boa sorte! 🎰', 'win');
+  updateUI();
+  closeDepositModal();
 }
 
 function showGameOverModal() {
@@ -530,10 +554,7 @@ function launchConfetti(count) {
    APOSTA — AJUSTE
 ────────────────────────────────────────────────── */
 function changeBet(delta) {
-  G.bet = Math.min(
-    Math.max(G.bet + delta * CFG.BET_STEP, CFG.BET_MIN),
-    Math.min(CFG.BET_MAX, G.balance)
-  );
+  G.bet = Math.max(G.bet + delta * CFG.BET_STEP, CFG.BET_MIN);
   updateUI();
 }
 
@@ -571,9 +592,22 @@ q('betDown').addEventListener('click',  () => changeBet(-1));
 q('betUp').addEventListener('click',    () => changeBet(+1));
 q('closeWinBtn').addEventListener('click',    closeWinModal);
 q('closeRetainBtn').addEventListener('click', closeRetainModal);
-q('closeGameOverBtn').addEventListener('click', closeGameOverModal);
+q('closeGameOverBtn').addEventListener('click', restart);
 restartBtn.addEventListener('click',    restart);
-awRestartBtn.addEventListener('click',  restart);
+
+q('depositBtn').addEventListener('click', openDepositModal);
+q('confirmDepositBtn').addEventListener('click', confirmDeposit);
+q('cancelDepositBtn').addEventListener('click', closeDepositModal);
+q('depositOverlay').addEventListener('click', e => { if (e.target === q('depositOverlay')) closeDepositModal(); });
+
+document.querySelectorAll('.dep-quick-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    depositSelected = parseInt(btn.dataset.val);
+    q('depositInput').value = '';
+    document.querySelectorAll('.dep-quick-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  });
+});
 
 // Saque: sempre bloqueado enquanto o jogo está ativo
 withdrawBtn.addEventListener('click', () => {
