@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FORTUNA — Simulação Educacional de Apostas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;600;700&family=Bebas+Neue&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="confetti"></div>
+
+<!-- Áudio -->
+<audio id="spinSound" preload="auto">
+  <source src="https://assets.mixkit.co/active_storage/sfx/2809/2809-preview.mp3" type="audio/mpeg">
+</audio>
+<audio id="reelSpinSound" preload="auto" loop>
+  <source src="https://assets.mixkit.co/active_storage/sfx/273/273-preview.mp3" type="audio/mpeg">
+</audio>
+<audio id="winSound" preload="auto">
+  <source src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" type="audio/mpeg">
+</audio>
+<audio id="matchSound" preload="auto">
+  <source src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3" type="audio/mpeg">
+</audio>
+<audio id="loseSound" preload="auto">
+  <source src="https://assets.mixkit.co/active_storage/sfx/256/256-preview.mp3" type="audio/mpeg">
+</audio>
+
+<div class="overlay" id="winOverlay" role="dialog" aria-modal="true">
+  <div class="modal modal-win">
+    <div id="winIcon" style="font-size:2.6rem;margin-bottom:0.5rem;">🎰</div>
+    <h2 id="winTitle">VOCÊ GANHOU!</h2>
+    <div class="amount" id="winAmount">+R$ 0,00</div>
+    <p class="sub" id="winSub"></p>
+    <button class="modal-close-btn btn-gold" id="closeWinBtn">CONTINUAR</button>
+  </div>
+</div>
+
+<div class="overlay" id="retainOverlay" role="dialog" aria-modal="true">
+  <div class="modal modal-retain">
+    <div style="font-size:2.2rem;margin-bottom:0.6rem;">🔒</div>
+    <h2 id="retainTitle">SAQUE BLOQUEADO</h2>
+    <p id="retainMsg">O valor mínimo para saque é de R$ 500,00. Continue jogando!</p>
+    <p class="small">⚠️ Esta é uma simulação de técnica real de retenção usada por plataformas de apostas.</p>
+    <button class="modal-close-btn btn-amber" id="closeRetainBtn">ENTENDI</button>
+  </div>
+</div>
+
+<div class="overlay" id="gameOverOverlay" role="dialog" aria-modal="true">
+  <div class="modal modal-gameover">
+    <div style="font-size:2.8rem;margin-bottom:0.8rem;text-align:center;">⚠️</div>
+    <h2 style="text-align:center;color:#FF6B6B;font-size:1.6rem;margin-bottom:1rem;">AVISO IMPORTANTE</h2>
+    
+    <div class="gameover-content">
+      <p><strong>Esta aplicação é uma simulação educacional.</strong> Jogos de azar e plataformas de apostas não regulamentadas são <span style="color:#FFD93D;">matematicamente e algoritmicamente programados para fazer você perder.</span></p>
+      
+      <p style="margin-top:1rem;">Mecânicas como <span style="color:#FF6B6B;">falsos ganhos</span> (ganhar menos do que você apostou), <span style="color:#FF6B6B;">quase-acertos</span> (near-miss) e <span style="color:#FF6B6B;">restrições abusivas de saque</span> são técnicas de <em>design persuasivo</em> criadas para prender sua atenção, criar vício e esvaziar sua banca progressivamente.</p>
+      
+      <p style="margin-top:1.5rem;font-size:1.1rem;color:#FFD93D;"><strong>A CASA SEMPRE GANHA.</strong></p>
+      
+      <div style="margin-top:1.5rem;padding:1rem;background:rgba(255,107,107,0.1);border-left:4px solid #FF6B6B;border-radius:4px;font-size:0.85rem;">
+        <p style="margin:0;"><strong>Se você ou alguém que conhece tem problemas com apostas, procure ajuda:</strong></p>
+        <p style="margin:0.5rem 0 0 0;"><strong>CVV: 188 · SENAD: 0800 061 9960</strong></p>
+      </div>
+    </div>
+    
+    <button class="modal-close-btn btn-gold" id="closeGameOverBtn" style="margin-top:1.5rem;width:100%;">ENTENDI</button>
+  </div>
+</div>
+
+<main class="app">
+
+  <div class="logo">
+    <h1>FORTUNA</h1>
+    <div class="tag">✦ Simulação Educacional de Apostas ✦</div>
+  </div>
+
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card">
+      <div class="stat-label">Saldo Atual</div>
+      <div class="stat-val" id="balanceVal">R$ 100,00</div>
+      <button class="withdraw-btn" id="withdrawBtn" style="margin-top:0.6rem;">
+        ↑ SOLICITAR SAQUE
+      </button>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Último Ganho</div>
+      <div class="stat-val" id="lastWinVal">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Apostado</div>
+      <div class="stat-val" id="totalBetVal" style="color:var(--purple);">R$ 0,00</div>
+    </div>
+  </div>
+
+  <div class="cabinet">
+
+    <div class="deco-lights">
+      <div class="lights-cluster">
+        <div class="lbulb"></div><div class="lbulb"></div><div class="lbulb"></div>
+      </div>
+      <span class="cabinet-name">◆ LUCKY SPIN ◆</span>
+      <div class="lights-cluster">
+        <div class="lbulb"></div><div class="lbulb"></div><div class="lbulb"></div>
+      </div>
+    </div>
+
+    <div class="reels-area">
+      <div class="payline"></div>
+      <div class="reel-wrap" id="reel0"><div class="reel-strip" id="strip0"></div></div>
+      <div class="reel-wrap" id="reel1"><div class="reel-strip" id="strip1"></div></div>
+      <div class="reel-wrap" id="reel2"><div class="reel-strip" id="strip2"></div></div>
+    </div>
+
+    <div class="controls">
+
+      <div class="bet-row">
+        <span class="bet-lbl">Aposta:</span>
+        <button class="bet-adj" id="betDown">−</button>
+        <span class="bet-amount" id="betDisplay">R$ 5,00</span>
+        <button class="bet-adj" id="betUp">+</button>
+      </div>
+
+      <div class="status info" id="statusMsg">Pressione GIRAR para começar!</div>
+
+      <button class="spin-btn" id="spinBtn"><span>🎰 &nbsp;GIRAR</span></button>
+
+      <button class="restart-btn" id="restartBtn" style="display:none;">↩ REINICIAR SIMULAÇÃO</button>
+
+      <div class="play-count" id="playCountEl">Jogada 0 de 6</div>
+    </div>
+  </div>
+
+  <div class="history-row" id="historyRow"></div>
+
+  <section class="awareness-panel" id="awarenessPanel">
+
+    <div class="aw-icon" style="text-align:center;">⚠️</div>
+    <h2 style="text-align:center;">AVISO IMPORTANTE</h2>
+
+    <div class="aw-box">
+      Esta aplicação é uma <strong>simulação educacional</strong>.
+      Jogos de azar e plataformas de apostas não regulamentadas são
+      <em>matematicamente e algoritmicamente programados para fazer você perder</em>.
+      <br /><br />
+      Mecânicas como <strong>falsos ganhos</strong> (ganhar menos do que você apostou),
+      <strong>quase-acertos</strong> (near-miss) e
+      <strong>restrições abusivas de saque</strong> são técnicas de
+      <em>design persuasivo</em> criadas para prender sua atenção,
+      criar vício e esvaziar sua banca progressivamente.
+      <br /><br />
+      <strong>A casa sempre ganha.</strong>
+    </div>
+
+    <div class="pill-row">
+      <span class="pill red">Near-Miss Programado</span>
+      <span class="pill amber">Ganhos Iniciais Falsos</span>
+      <span class="pill purple">Saque Bloqueado</span>
+      <span class="pill red">Perda Total no Gatilho</span>
+    </div>
+
+    <p style="text-align:center;font-size:0.8rem;color:#6a5e8a;margin-bottom:1.4rem;">
+      Se você ou alguém que conhece tem problemas com apostas, procure ajuda.<br/>
+      <strong style="color:var(--cyan);">CVV: 188 · SENAD: 0800 061 9960</strong>
+    </p>
+
+    <div style="text-align:center;">
+      <button class="restart-btn" id="awRestartBtn">↩ REINICIAR SIMULAÇÃO</button>
+    </div>
+
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
